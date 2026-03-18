@@ -1,0 +1,408 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap");
+
+.retro-space {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 24px;
+  background-color: #050811;
+}
+
+.retro-space.intro-mode {
+  background-color: #050811;
+  background-image:
+    linear-gradient(
+      0deg,
+      transparent 24%,
+      #1a2a4a 25%,
+      #1a2a4a 26%,
+      transparent 27%,
+      transparent 74%,
+      #1a2a4a 75%,
+      #1a2a4a 76%,
+      transparent 77%
+    ),
+    linear-gradient(
+      90deg,
+      transparent 24%,
+      #1a2a4a 25%,
+      #1a2a4a 26%,
+      transparent 27%,
+      transparent 74%,
+      #1a2a4a 75%,
+      #1a2a4a 76%,
+      transparent 77%
+    );
+  background-size: 28px 28px;
+  animation: moveGrid 6s linear infinite;
+}
+
+.retro-space.ship-mode {
+  background-color: #050811;
+  background-image:
+    linear-gradient(
+      0deg,
+      transparent 49%,
+      #0a0f24 50%,
+      #0a0f24 51%,
+      transparent 52%
+    ),
+    linear-gradient(
+      90deg,
+      transparent 49%,
+      #0a0f24 50%,
+      #0a0f24 51%,
+      transparent 52%
+    );
+  background-size: 20px 20px;
+  animation: moveGrid 8s linear infinite;
+}
+
+@keyframes moveGrid {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 20px 20px;
+  }
+}
+
+.starfield {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.star {
+  position: absolute;
+  background: #dbe8ff;
+}
+
+.intro-console,
+.bridge-console {
+  position: relative;
+  z-index: 1;
+  width: min(980px, 100%);
+  border: 6px solid #0b0f1f;
+  box-shadow: 10px 10px 0 #000;
+  text-align: center;
+}
+
+.back-btn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  border: 3px solid #05070e;
+  background: #334e8a;
+  color: #f7fbff;
+  font-family: "Press Start 2P", cursive;
+  font-size: 0.5rem;
+  padding: 6px 8px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #162544;
+  transition:
+    transform 80ms steps(2),
+    box-shadow 80ms steps(2);
+}
+
+.back-btn:hover {
+  background: #445b9f;
+}
+
+.back-btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #162544;
+}
+
+.bridge-console {
+  background: #1a2441;
+  padding: 24px;
+  position: relative;
+}
+
+.intro-console {
+  background: #18213b;
+  padding: 28px 24px 32px;
+}
+
+.console-label {
+  margin: 0;
+  font-family: "VT323", monospace;
+  font-size: 30px;
+  color: #77f6ff;
+  letter-spacing: 1px;
+}
+
+h1 {
+  margin: 18px 0 14px;
+  font-family: "Press Start 2P", cursive;
+  font-size: clamp(1.35rem, 3vw, 2.2rem);
+  line-height: 1.3;
+  color: #ffdd75;
+  text-shadow:
+    4px 4px 0 #ff6b35,
+    8px 8px 0 #d32f2f;
+}
+
+.tagline {
+  margin: 0 auto;
+  max-width: 580px;
+  font-family: "VT323", monospace;
+  font-size: clamp(1.5rem, 3.8vw, 2rem);
+  line-height: 1.2;
+  color: #e6f0ff;
+}
+
+.instruction-copy {
+  max-width: 760px;
+  margin: 18px auto 20px;
+  font-family: "VT323", monospace;
+  font-size: 1.7rem;
+  color: #9ce9f2;
+}
+
+.hero-ship-container {
+  margin: 18px auto 14px;
+  padding: 8px;
+  background: #0f1630;
+  border: 4px solid #02050d;
+  box-shadow: 6px 6px 0 #000;
+  max-width: 600px;
+}
+
+.hero-ship-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  max-height: 280px;
+  object-fit: contain;
+}
+
+.fleet-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 18px 0 16px;
+}
+
+.nav-btn {
+  border: 3px solid #05070e;
+  background: #334e8a;
+  color: #f7fbff;
+  font-family: "Press Start 2P", cursive;
+  font-size: 0.5rem;
+  padding: 8px 10px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #162544;
+  transition:
+    transform 80ms steps(2),
+    box-shadow 80ms steps(2);
+  white-space: nowrap;
+}
+
+.nav-btn:hover {
+  background: #445b9f;
+}
+
+.nav-btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #162544;
+}
+
+.nav-btn.active {
+  background: #6d89d1;
+  box-shadow: 0 4px 0 #ffb700;
+}
+
+.content-wrapper {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  min-height: 320px;
+}
+
+.sidebar {
+  flex: 0 0 180px;
+  background: #0f1630;
+  border: 3px solid #02050d;
+  box-shadow: 4px 4px 0 #000;
+  padding: 12px;
+}
+
+.sidebar h3 {
+  margin: 0 0 8px;
+  color: #76ff94;
+  font-family: "Press Start 2P", cursive;
+  font-size: 0.55rem;
+}
+
+.feature-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feature-list li {
+  background: #1a2a50;
+  border: 2px solid #05070e;
+  box-shadow: 2px 2px 0 #000;
+  padding: 8px;
+  margin-bottom: 6px;
+  color: #d3e5ff;
+  font-family: "VT323", monospace;
+  font-size: 1.5rem;
+  line-height: 1.1;
+}
+
+.main-panel {
+  flex: 1;
+  background: #131d37;
+  border: 3px solid #02050d;
+  box-shadow: 4px 4px 0 #000;
+  padding: 14px;
+}
+
+.main-panel h2 {
+  margin: 0 0 8px;
+  color: #9de7ff;
+  font-family: "Press Start 2P", cursive;
+  font-size: clamp(0.65rem, 1.2vw, 0.8rem);
+  text-shadow: 2px 2px 0 #0f3c66;
+}
+
+.main-panel .panel-copy {
+  font-family: "VT323", monospace;
+  font-size: 1.6rem;
+  color: #e8f1ff;
+}
+
+.launch-btn {
+  border: 4px solid #121212;
+  background: #ff4933;
+  color: #fff6e0;
+  font-family: "Press Start 2P", cursive;
+  font-size: clamp(0.8rem, 2.1vw, 1rem);
+  padding: 14px 20px;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #6a1810;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition:
+    transform 80ms steps(2),
+    box-shadow 80ms steps(2),
+    background-color 80ms steps(2);
+}
+
+.launch-btn:hover {
+  background: #ff6248;
+}
+
+.launch-btn:active {
+  transform: translateY(6px);
+  box-shadow: 0 0 0 #6a1810;
+}
+
+.launch-btn:focus-visible {
+  outline: 3px dashed #77f6ff;
+  outline-offset: 6px;
+}
+
+.panel {
+  margin: 20px auto 6px;
+  max-width: 860px;
+  background: #131d37;
+  border: 4px solid #02050d;
+  box-shadow: 6px 6px 0 #000;
+  padding: 18px 14px 20px;
+  text-align: left;
+}
+
+.panel h2 {
+  margin: 0 0 10px;
+  color: #9de7ff;
+  font-family: "Press Start 2P", cursive;
+  font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+  text-shadow: 2px 2px 0 #0f3c66;
+  display: none;
+}
+
+.panel-copy {
+  margin: 0;
+  font-family: "VT323", monospace;
+  font-size: 1.7rem;
+  color: #e8f1ff;
+  display: none;
+}
+
+.card-grid,
+.feature-card,
+.feature-card h3,
+.feature-card p,
+.mission-list,
+.guide-list,
+.mission-list li,
+.guide-list li,
+.stat-strip,
+.stat-strip div,
+.stat-strip span,
+.stat-strip strong {
+  display: none;
+}
+
+@media (max-width: 840px) {
+  .content-wrapper {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    flex: 1;
+  }
+
+  .nav-btn {
+    font-size: 0.45rem;
+    padding: 6px 8px;
+  }
+}
+
+@media (max-width: 680px) {
+  .intro-console,
+  .bridge-console {
+    border-width: 5px;
+    box-shadow: 7px 7px 0 #000;
+    padding: 22px 14px 24px;
+  }
+
+  .hero-ship {
+    gap: 8px;
+  }
+
+  .launch-btn {
+    width: 100%;
+  }
+
+  .nav-btn {
+    font-size: 0.4rem;
+    padding: 6px 6px;
+    flex: 1 1 calc(50% - 4px);
+  }
+
+  .content-wrapper {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .sidebar {
+    flex: 1;
+  }
+
+  .main-panel {
+    flex: 1;
+  }
+}
