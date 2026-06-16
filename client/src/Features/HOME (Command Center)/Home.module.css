@@ -1,0 +1,254 @@
+/* --- LAYOUT --- */
+.homeShell {
+  width: 100%;
+  height: 100%; /* Locks the dashboard to exactly the height of the screen */
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px; /* Tightened gap */
+  align-items: stretch;
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0; /* Allows elements to shrink without breaking out */
+}
+
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: 100%;
+  min-height: 0;
+}
+
+/* --- BASE CARDS --- */
+.heroCard,
+.statsCard,
+.leaderboardCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px; /* Slightly sharper */
+  padding: 28px; /* Compressed from 36px to fit screen */
+  backdrop-filter: blur(16px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.heroCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Dynamically spaces elements perfectly */
+}
+
+/* --- HERO SECTION --- */
+.heroHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.heroTitle {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.5vw, 2.8rem); /* Scaled down */
+  margin: 0;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+/* Pulsing Status Dot */
+.statusDot {
+  width: 10px;
+  height: 10px;
+  background-color: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.8);
+  animation: pulse 2s infinite;
+  margin-top: 8px;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.heroNote {
+  color: #9ca3af;
+  line-height: 1.6;
+  max-width: 95%;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+
+.highlight {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* --- PILOT STATS --- */
+.pilotStatus {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.statBlock {
+  padding: 16px 20px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.statLabel {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #9ca3af;
+  margin: 0 0 4px;
+}
+
+.statValue {
+  font-family: var(--font-data);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+  margin: 0;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+/* --- XP PROGRESS BAR --- */
+.progressContainer {
+  margin-bottom: 24px;
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  color: #9ca3af;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #991b1b, #dc2626);
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.6);
+}
+
+.massiveBtn {
+  margin-top: 0;
+  width: 100%;
+  padding: 16px !important;
+  font-size: 1rem !important;
+}
+
+/* --- TACTICAL DATA CARDS --- */
+.leaderTitle,
+.statsTitle {
+  margin: 0 0 16px;
+  letter-spacing: 0.18em;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  font-family: var(--font-display);
+  color: #ffffff;
+}
+
+.statsCard {
+  flex: 0 1 auto;
+}
+
+.leaderboardCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allows internal scroll if there are too many pilots */
+}
+
+.logItem,
+.leaderItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  margin-bottom: 10px;
+  transition: all 0.2s ease;
+}
+
+.logItem:last-child,
+.leaderItem:last-child {
+  margin-bottom: 0;
+}
+
+.logItem:hover,
+.leaderItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --- TAGS & LEADERBOARD SPECIFICS --- */
+.rewardTag { color: #10b981; font-family: var(--font-data); font-weight: 700; font-size: 0.9rem;}
+.statusTag { color: #38bdf8; font-family: var(--font-display); letter-spacing: 0.1em; font-size: 0.9rem;}
+.infoTag { color: #9ca3af; font-size: 0.9rem;}
+
+.rankBadge {
+  font-family: var(--font-data);
+  font-weight: 700;
+  color: #eab308;
+  border: 1px solid #eab308;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+.pilotName {
+  flex: 1;
+  margin-left: 14px;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.pilotXp {
+  font-family: var(--font-data);
+  color: #9ca3af;
+  font-size: 0.95rem;
+}
+
+.currentUser {
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+.currentUser .pilotName { color: #ffffff; font-weight: 600; }
+.currentUser .pilotXp { color: #dc2626; font-weight: 700; }
+
+@media (max-width: 960px) {
+  .homeShell { grid-template-columns: 1fr; height: auto; }
+  .rightColumn { gap: 24px; }
+}

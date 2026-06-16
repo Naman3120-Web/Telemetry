@@ -1,0 +1,224 @@
+/* 1. LAYOUT INTEGRATION */
+.focusShell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100%;
+  padding: 0;
+  width: 100%;
+}
+
+.focusCard {
+  width: min(680px, 100%); /* Shrunk from 960px for a denser, tactical feel */
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px; /* Slightly sharper corners */
+  padding: 32px; /* Tightened padding */
+  backdrop-filter: blur(16px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 2. THE CHROMATIC GLITCH EFFECT */
+.glitchEffect {
+  text-shadow: 4px 0px 0px rgba(220, 38, 38, 0.6), -4px 0px 0px rgba(0, 255, 255, 0.6);
+  filter: contrast(1.2) brightness(1.2);
+}
+
+/* 3. TYPOGRAPHY INTEGRATION */
+.focusTitle {
+  margin: 0 0 16px;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.5rem); /* Scaled down */
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.taskInput {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-family: var(--font-ui);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 14px 18px; /* Slimmer input box */
+  font-size: 15px;
+  outline: none;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.5);
+  cursor: none !important;
+}
+
+.taskInput:focus {
+  border-color: rgba(220, 38, 38, 0.5);
+  box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 15px rgba(220, 38, 38, 0.2);
+}
+
+.taskInput:disabled {
+  opacity: 0.5;
+  cursor: none !important; 
+}
+
+/* 4. TIMER FRAME & FLIP CLOCK */
+.timerFrame {
+  position: relative;
+  margin: 24px 0; /* Tighter margins */
+  padding: 28px 24px;
+  border-radius: 20px;
+  background: radial-gradient(circle at top, rgba(255, 255, 255, 0.05), transparent 60%);
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.timeDisplay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-data);
+  font-size: clamp(4rem, 8vw, 6rem); /* Scaled down so it doesn't overwhelm the card */
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+}
+
+.colon {
+  transform: translateY(-5%);
+}
+
+/* 5. THE PHYSICS SLIDER TRACK */
+.sliderLine {
+  position: relative;
+  width: 100%;
+  max-width: 300px; /* Slimmer track */
+  height: 56px; /* Slightly thinner */
+  margin: 0; /* Margins handled by flex container */
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 6px 15px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+
+/* 6. THE DRAG HANDLE */
+.engageHandle {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 48px; /* Matched to thinner track */
+  height: 48px;
+  background: linear-gradient(180deg, #dc2626, #991b1b);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 20px rgba(220, 38, 38, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  z-index: 2;
+  cursor: none !important; 
+}
+
+.engageHint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 24px;
+  color: rgba(255, 255, 255, 0.3);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 7. WARP MOMENTUM EFFECT */
+.warpEffect {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0 1px,
+    transparent 1px 40px
+  );
+  animation: warp 0.4s linear infinite; 
+  opacity: 0.6;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+@keyframes warp {
+  from { transform: translateX(0); }
+  to { transform: translateX(-40px); }
+}
+
+@media (max-width: 720px) {
+  .focusCard {
+    padding: 24px;
+  }
+  .timeDisplay {
+    font-size: 3.5rem;
+  }
+}
+
+/* --- 8. PENALTY UI --- */
+.failureOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 0, 0, 0.85);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 32px;
+  border: 2px solid rgba(220, 38, 38, 0.4);
+  border-radius: 24px; /* Matches card radius */
+  box-shadow: inset 0 0 100px rgba(220, 38, 38, 0.2);
+}
+
+.failureText {
+  color: #ffb4b4;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.5vw, 2rem); /* Scaled down slightly */
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  line-height: 1.4;
+  text-shadow: 0 0 20px rgba(220, 38, 38, 0.8);
+}
+
+.pauseWarning {
+  color: #ffb4b4;
+  background: rgba(220, 38, 38, 0.1);
+  padding: 12px;
+  border-radius: 12px;
+  font-family: var(--font-display);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  animation: pulseWarning 1s infinite alternate;
+}
+
+.pauseWarning span {
+  font-family: var(--font-data);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #ffffff;
+}
+
+@keyframes pulseWarning {
+  from { box-shadow: inset 0 0 0px rgba(220, 38, 38, 0); }
+  to { box-shadow: inset 0 0 20px rgba(220, 38, 38, 0.4); }
+}

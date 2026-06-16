@@ -1,0 +1,178 @@
+.landing {
+  position: relative;
+  min-height: 100vh;
+  width: 100vw;
+  background: #000000; /* Pure blackout by default */
+  overflow: hidden; 
+}
+
+/* THE BACKGROUND RED GLOW */
+.flashlightBg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(
+    1500px circle at var(--mx) var(--my),
+    rgba(220, 38, 38, 0.08),
+    transparent 60%
+  );
+  transition: opacity 0.8s ease;
+}
+
+/* THE RADAR HINT */
+.hintText {
+  position: absolute;
+  top:10%;
+   left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-data);
+  color: #ffffff;
+  font-size: 0.9rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  pointer-events: none;
+  animation: pulseHint 3s infinite;
+  transition: opacity 0.3s ease; /* Fast fade out */
+  z-index: 5;
+}
+
+.hintText.hidden {
+  opacity: 0;
+  animation: none;
+}
+
+@keyframes pulseHint {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.5; }
+}
+
+/* --- THE EXACT REVEAL MASK LAYER --- */
+.maskedContent {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 80px 72px;
+  gap: 40px;
+  z-index: 10;
+  transition: opacity 0.8s ease;
+  
+  /* 
+    THE MAGIC: This creates a 350px literal "hole" in the darkness 
+    that tracks exactly where your mouse is natively. 
+  */
+  -webkit-mask-image: radial-gradient(
+    350px circle at var(--mx) var(--my),
+    black 10%,
+    rgba(0, 0, 0, 0.5) 45%,
+    transparent 80%
+  );
+  mask-image: radial-gradient(
+    350px circle at var(--mx) var(--my),
+    black 10%,
+    rgba(0, 0, 0, 0.5) 45%,
+    transparent 80%
+  );
+}
+
+.landingCopy {
+  position: relative;
+  z-index: 2;
+}
+
+.badge {
+  font-family: var(--font-data);
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  font-size: 0.85rem;
+  color: #dc2626;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 7vw, 7rem);
+  line-height: 1;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin: 0 0 16px;
+  color: #f8fafc;
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+}
+
+.subtitle {
+  font-family: var(--font-ui);
+  max-width: 640px;
+  color: #9ca3af;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.launchButton {
+  position: relative;
+  z-index: 2;
+  min-width: 380px;
+  width: min(460px, 100%);
+  height: 80px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  overflow: hidden;
+  color: #fff;
+  cursor: none !important; 
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s ease;
+}
+
+.launchButton:hover {
+  border-color: rgba(220, 38, 38, 0.5);
+}
+
+.launchLabel {
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.progress {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: linear-gradient(90deg, #991b1b, #dc2626);
+  transition: width 0.1s linear;
+  opacity: 0.9;
+  z-index: 1;
+}
+
+.progressGlow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4));
+  transform: translateX(-100%);
+  z-index: 1;
+  filter: blur(4px);
+}
+
+@media (max-width: 760px) {
+  .maskedContent { padding: 48px 24px; align-items: center; text-align: center; }
+  .hintText { text-align: center; width: 80%; }
+  .subtitle { max-width: 100%; }
+  .launchButton { min-width: 100%; }
+}

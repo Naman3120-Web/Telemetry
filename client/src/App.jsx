@@ -1,35 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import "./App.css";
-
-const stars = [
-  { x: 4, y: 8, size: 4 },
-  { x: 13, y: 15, size: 3 },
-  { x: 24, y: 6, size: 3 },
-  { x: 33, y: 20, size: 4 },
-  { x: 45, y: 10, size: 3 },
-  { x: 58, y: 18, size: 4 },
-  { x: 70, y: 7, size: 3 },
-  { x: 82, y: 16, size: 4 },
-  { x: 92, y: 9, size: 3 },
-  { x: 8, y: 42, size: 3 },
-  { x: 19, y: 34, size: 4 },
-  { x: 30, y: 48, size: 3 },
-  { x: 39, y: 37, size: 3 },
-  { x: 51, y: 43, size: 4 },
-  { x: 62, y: 31, size: 3 },
-  { x: 74, y: 45, size: 4 },
-  { x: 85, y: 38, size: 3 },
-  { x: 95, y: 44, size: 4 },
-  { x: 6, y: 73, size: 3 },
-  { x: 16, y: 64, size: 4 },
-  { x: 28, y: 81, size: 3 },
-  { x: 41, y: 70, size: 4 },
-  { x: 53, y: 78, size: 3 },
-  { x: 66, y: 67, size: 4 },
-  { x: 77, y: 83, size: 3 },
-  { x: 89, y: 72, size: 4 },
-  { x: 96, y: 84, size: 3 },
-];
+import Landing from "./components/Landing.jsx";
+import Navbar from "./components/Navbar.jsx";
+import Starfield from "./components/Starfield.jsx";
+import CursorTrail from "./components/CustomCursor.jsx";
+import Home from "./Features/HOME (Command Center)/Home.jsx";
+import Focus from "./Features/FOCUS (Solo Hyperspace)/Focus.jsx";
+import Rooms from "./Features/ROOMS (Fleet Formation)/Rooms.jsx";
+import Relax from "./Features/RELAX (Cryo-Chamber)/Relax.jsx";
+import Profile from "./Features/PROFILE (Pilot Log)/Profile.jsx";
 
 const platformSections = [
   {
@@ -39,146 +25,111 @@ const platformSections = [
   },
   {
     key: "focus",
-    name: "Focus Session",
-    features: [
-      "Avg focus span",
-      "Pomodoro solo session",
-      "Lo-fi / white-noise",
-    ],
+    name: "FOCUS",
+    features: ["Pomodoro solo session", "Lo-fi / white-noise", "XP rewards"],
   },
   {
-    key: "room",
-    name: "Room",
-    features: [
-      "Most active rooms",
-      "Join room",
-      "Live video communication (RTC)",
-    ],
+    key: "rooms",
+    name: "ROOMS",
+    features: ["Public fleets", "Join/Host rooms", "Timer sync (Socket)"],
   },
   {
     key: "relax",
-    name: "Relax",
-    features: ["Mind games website link", "Meditation activities"],
+    name: "RELAX",
+    features: ["5-min breathing", "Guided cooldown"],
   },
+  { key: "profile", name: "PROFILE", features: ["Badges", "Account settings"] },
 ];
 
 function App() {
   const [isBoarded, setIsBoarded] = useState(false);
-  const [activeSection, setActiveSection] = useState("home");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const activeSection =
+    location.pathname === "/" ? "home" : location.pathname.slice(1);
 
-  const currentSection = platformSections.find((s) => s.key === activeSection);
+  const [user, setUser] = useState(() => {
+    try {
+      const raw = localStorage.getItem("telemetry_user");
+      return raw
+        ? JSON.parse(raw)
+        : { username: "Pilot", xp: 0, level: 0, badges: [] };
+    } catch (e) {
+      return { username: "Pilot", xp: 0, level: 0, badges: [] };
+    }
+  });
+
+  useEffect(() => {
+    const lv = Math.floor((user.xp || 0) / 1000);
+    if (lv !== user.level) setUser((u) => ({ ...u, level: lv }));
+    localStorage.setItem("telemetry_user", JSON.stringify(user));
+  }, [user]);
+
+  const currentSection =
+    platformSections.find((s) => s.key === activeSection) ??
+    platformSections[0];
+
+  const awardXP = (amount) => {
+    setUser((u) => ({ ...u, xp: (u.xp || 0) + amount }));
+  };
 
   return (
-    <main className={`retro-space ${isBoarded ? "ship-mode" : "intro-mode"}`}>
-      <div className="starfield" aria-hidden="true">
-        {stars.map((star, index) => (
-          <span
-            key={`${star.x}-${star.y}-${index}`}
-            className="star"
-            style={{
-              left: `${star.x}%`,
-              top: `${star.y}%`,
-              width: `${star.size}px`,
-              height: `${star.size}px`,
-            }}
-          />
-        ))}
-      </div>
+    <main className={`root ${isBoarded ? "ship-mode" : "intro-mode"}`}>
+      <Starfield />
+      <CursorTrail />
 
       {!isBoarded ? (
-        <section className="intro-console" aria-label="Platform introduction">
-          <div className="intro-left">
-            <p className="console-label">01 GETTING STARTED</p>
-            <h1>TELEMETRY</h1>
-            <p className="tagline">
-              Train like a fleet. Focus like a captain. Discover new sectors
-              every session.
-            </p>
-
-            <p className="instruction-copy">
-              This platform runs shared Pomodoro missions for social
-              accountability. Start by boarding the ship.
-            </p>
-
-            <button
-              type="button"
-              className="launch-btn"
-              aria-label="Jump in the spaceship"
-              onClick={() => setIsBoarded(true)}
-            >
-              JUMP IN SPACESHIP →
-            </button>
-          </div>
-
-          <div className="intro-right">
-            <div className="stat-cards">
-              <div className="stat-card">
-                <div className="stat-card-value">90%</div>
-                <div className="stat-card-label">Success Rate</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-card-value">⚡</div>
-                <div className="stat-card-label">AI Controlled</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-card-value">🔗</div>
-                <div className="stat-card-label">Real Time Communication</div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <Landing onLaunch={() => setIsBoarded(true)} />
       ) : (
-        <section className="bridge-console" aria-label="In-ship dashboard">
-          <button
-            type="button"
-            className="back-btn"
-            aria-label="Return to instruction page"
-            onClick={() => setIsBoarded(false)}
-          >
-            ← BACK
-          </button>
+        <>
+          <div className="topBar">
+            {activeSection !== "home" && (
+              <button
+                type="button"
+                className="backButton"
+                onClick={() => navigate("/")}
+              >
+                ← COMMAND CENTRE
+              </button>
+            )}
+            <Navbar />
+          </div>
 
-          <div className="bridge-content">
-            <div className="bridge-header">
-              <p className="console-label">INSIDE THE BRIDGE</p>
-              <h1>HYPERFOCUS FLEET</h1>
-              <p className="tagline">
-                Charge your engines. Focus together. Explore the galaxy.
-              </p>
-            </div>
-
-            <nav className="fleet-nav" aria-label="Platform navigation">
-              {platformSections.map((item) => (
-                <button
-                  key={item.key}
-                  type="button"
-                  className={`nav-btn ${activeSection === item.key ? "active" : ""}`}
-                  onClick={() => setActiveSection(item.key)}
-                >
-                  {item.name}
-                </button>
-              ))}
-            </nav>
-
-            <div className="content-wrapper">
+          <div className="dashboard">
+            <div className="shipLayout">
               <aside className="sidebar" aria-label="Section features">
-                <h3>FEATURES</h3>
-                <ul className="feature-list">
+                <p className="sidebarHeading">CURRENT MISSION</p>
+                <ul className="featureList">
                   {currentSection?.features.map((feature) => (
                     <li key={feature}>{feature}</li>
                   ))}
                 </ul>
               </aside>
 
-              <main className="main-panel" aria-label="Section details">
-                <h2>{currentSection?.name}</h2>
-                <p className="panel-copy">
-                  Explore the galaxy. Build your crew. Master focus.
-                </p>
-              </main>
+              <section className="sectionPanel" aria-label="Section details">
+                <Routes>
+                  <Route
+                    path="/"
+                    element={
+                      <Home
+                        user={user}
+                        onQuickLaunch={() => navigate("/focus")}
+                      />
+                    }
+                  />
+                  <Route path="/focus" element={<Focus awardXP={awardXP} />} />
+                  <Route path="/rooms" element={<Rooms user={user} />} />
+                  <Route path="/relax" element={<Relax />} />
+                  <Route
+                    path="/profile"
+                    element={<Profile user={user} setUser={setUser} />}
+                  />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </section>
             </div>
           </div>
-        </section>
+        </>
       )}
     </main>
   );

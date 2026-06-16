@@ -1,0 +1,191 @@
+/* --- LAYOUT --- */
+.relaxShell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100%;
+  padding: 0;
+  width: 100%;
+}
+
+.relaxCard {
+  width: min(600px, 100%); /* Slimmed down from 680px for a tighter focus */
+  background: rgba(8, 14, 21, 0.6); 
+  border: 1px solid rgba(6, 182, 212, 0.15); 
+  border-radius: 24px;
+  padding: 32px; /* Tightened from 40px */
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 0 80px rgba(6, 182, 212, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* --- HEADER --- */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px; /* Tightened */
+}
+
+.cryoIcon {
+  color: #22d3ee; 
+  filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.6));
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.4rem); /* Slightly scaled down */
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #e0f2fe;
+  text-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
+}
+
+.subtitle {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin: 0 0 24px; /* Reduced from 40px */
+  max-width: 85%;
+  line-height: 1.5;
+}
+
+/* --- BREATHING CORE (VISUALS) --- */
+.coreContainer {
+  position: relative;
+  width: 200px; /* Reduced from 240px */
+  height: 200px; /* Reduced from 240px */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 24px; /* Reduced from 40px */
+}
+
+.outerRing {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1px dashed rgba(34, 211, 238, 0.3);
+  animation: slowSpin 20s linear infinite;
+}
+
+.coreRing {
+  position: absolute;
+  width: 80px; /* Reduced from 100px */
+  height: 80px; /* Reduced from 100px */
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.4) 0%, rgba(14, 165, 233, 0.1) 70%, transparent 100%);
+  box-shadow: 0 0 40px rgba(34, 211, 238, 0.4);
+  z-index: 1;
+}
+
+.phaseReadout {
+  position: absolute;
+  z-index: 2;
+  font-family: var(--font-display);
+  font-size: 1rem; /* Scaled down slightly */
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: #ffffff;
+  text-transform: uppercase;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes slowSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* --- TIMER --- */
+.timerFrame {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(34, 211, 238, 0.1);
+  padding: 12px 40px; /* Tightened padding */
+  border-radius: 16px;
+  margin-bottom: 24px; /* Reduced from 32px */
+  box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.timeDisplay {
+  font-family: var(--font-data);
+  font-size: clamp(2.5rem, 5vw, 3.5rem); /* Scaled down */
+  font-weight: 700;
+  color: #e0f2fe;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
+}
+
+.colon {
+  opacity: 0.6;
+  margin: 0 4px;
+}
+
+/* --- CUSTOM CRYO CONTROLS --- */
+.controls {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.cryoBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #0891b2; 
+  border: 1px solid #22d3ee;
+  padding: 12px 24px; /* Slightly slimmer buttons */
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 15px rgba(8, 145, 178, 0.4);
+}
+
+.cryoBtn:hover {
+  background: #0e7490; 
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(8, 145, 178, 0.6);
+}
+
+.activeBtn {
+  background: transparent;
+  border-color: #f43f5e;
+  color: #f43f5e;
+  box-shadow: none;
+}
+
+.activeBtn:hover {
+  background: rgba(244, 63, 94, 0.1);
+  box-shadow: 0 0 15px rgba(244, 63, 94, 0.2);
+}
+
+.altBtn {
+  background: transparent;
+  border-color: rgba(34, 211, 238, 0.3);
+  color: #94a3b8;
+  box-shadow: none;
+}
+
+.altBtn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+@media (max-width: 720px) {
+  .relaxCard { padding: 24px 20px; }
+  .coreContainer { width: 180px; height: 180px; }
+  .coreRing { width: 60px; height: 60px; }
+}
