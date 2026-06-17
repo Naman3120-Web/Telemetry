@@ -1,49 +1,51 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Users, Radio, MessageSquare, ShieldAlert } from "lucide-react";
+import { motion } from "framer-motion";
+import { Users, Radio, Plus, Lock, Clock } from "lucide-react";
 import styles from "./Rooms.module.css";
 
+// Realistic Mock Data with varied states
+const initialRooms = [
+  {
+    id: "r1",
+    name: "Deep Work Alpha",
+    theme: "Engineering",
+    host: "Nova",
+    capacity: 5,
+    members: ["N", "X", "P"], // Initials for avatars
+    status: "open",
+  },
+  {
+    id: "r2",
+    name: "Midnight Coders",
+    theme: "Development",
+    host: "Cipher",
+    capacity: 8,
+    members: ["C", "M"],
+    status: "active",
+    timeLeft: "14:20",
+  },
+  {
+    id: "r3",
+    name: "Finals Grind",
+    theme: "Study",
+    host: "Flux",
+    capacity: 4,
+    members: ["F", "A", "R", "L"],
+    status: "full",
+  },
+];
+
 export default function Rooms({ user }) {
-  // Mock Data
-  const [rooms] = useState([
-    {
-      id: "alpha",
-      name: "Deep Work Alpha",
-      host: "Commander Nova",
-      participants: ["Nova", user.username, "Echo"],
-      status: "waiting",
-    },
-    {
-      id: "beta",
-      name: "Focus Beta",
-      host: "Captain Flux",
-      participants: ["Flux"],
-      status: "in-jump",
-    },
-    {
-      id: "gamma",
-      name: "Late Night Coders",
-      host: "Cipher",
-      participants: ["Cipher", "Ghost", "Spectre"],
-      status: "waiting",
-    },
-  ]);
+  const [rooms] = useState(initialRooms);
 
-  const [current, setCurrent] = useState(null);
-  const [roomTimer, setRoomTimer] = useState({
-    running: false,
-    seconds: 25 * 60,
-  });
-  const [chatInput, setChatInput] = useState("");
-
-  const join = (r) => setCurrent(r);
-  const leave = () => {
-    setCurrent(null);
-    setRoomTimer({ running: false, seconds: 25 * 60 });
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 },
+    },
   };
-  const hostStart = () => setRoomTimer({ running: true, seconds: 25 * 60 });
 
-  // Framer Motion Variants
   const fadeUp = {
     hidden: { opacity: 0, y: 20 },
     show: {
@@ -51,153 +53,108 @@ export default function Rooms({ user }) {
       y: 0,
       transition: { type: "spring", stiffness: 300, damping: 24 },
     },
-    exit: { opacity: 0, y: -20, transition: { duration: 0.2 } },
   };
 
   return (
     <div className={styles.roomsShell}>
-      <AnimatePresence mode="wait">
-        {/* --- VIEW 1: FLEET RADAR (LOBBY LIST) --- */}
-        {!current ? (
+      {/* 70% Functional Header */}
+      <div className={styles.headerRow}>
+        <div>
+          <div className={styles.titleBlock}>
+            <Radio className={styles.headerIcon} size={24} />
+            <h2 className={styles.pageTitle}>Co-op Focus Rooms</h2>
+          </div>
+          <span className={styles.loreTag}>Active Fleet Radar</span>
+        </div>
+
+        <button className={`launch-btn ${styles.createBtn}`}>
+          <Plus size={18} /> Create Fleet
+        </button>
+      </div>
+
+      <motion.div
+        className={styles.roomsGrid}
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+      >
+        {rooms.map((room) => (
           <motion.div
-            key="browser"
+            key={room.id}
             variants={fadeUp}
-            initial="hidden"
-            animate="show"
-            exit="exit"
-            className={styles.radarContainer}
+            className={`premium-card ${styles.roomCard}`}
           >
-            <div className={styles.radarHeader}>
-              <Radio className={styles.radarIcon} size={24} />
-              <h2>Active Fleet Radar</h2>
-              <span className={styles.pulseDot} />
+            {/* Room Header & Badges */}
+            <div className={styles.cardHeader}>
+              <h3 className={styles.roomName}>{room.name}</h3>
+              {room.status === "open" && (
+                <span className={`${styles.statusBadge} ${styles.open}`}>
+                  Awaiting
+                </span>
+              )}
+              {room.status === "active" && (
+                <span className={`${styles.statusBadge} ${styles.active}`}>
+                  In Session
+                </span>
+              )}
+              {room.status === "full" && (
+                <span className={`${styles.statusBadge} ${styles.full}`}>
+                  Full
+                </span>
+              )}
             </div>
 
-            <div className={styles.roomGrid}>
-              {rooms.map((r) => (
-                <div key={r.id} className={styles.roomCard}>
-                  <div className={styles.cardHeader}>
-                    <div className={styles.cardTitle}>{r.name}</div>
-                    <div
-                      className={
-                        r.status === "in-jump"
-                          ? styles.badgeActive
-                          : styles.badgeWaiting
-                      }
-                    >
-                      {r.status === "in-jump" ? "IN JUMP" : "AWAITING"}
-                    </div>
-                  </div>
+            <div className={styles.themeTag}>{room.theme}</div>
 
-                  <div className={styles.cardBody}>
-                    <div className={styles.hostLine}>
-                      Host: <span>{r.host}</span>
-                    </div>
-                    <div className={styles.crewLine}>
-                      <Users size={16} /> {r.participants.length} Pilots Docked
-                    </div>
-                  </div>
-
-                  <button
-                    className={`launch-btn small ${styles.joinBtn}`}
-                    onClick={() => join(r)}
+            {/* Social Proof: Overlapping Avatars */}
+            <div className={styles.socialRow}>
+              <div className={styles.avatarGroup}>
+                {room.members.map((initial, i) => (
+                  <div
+                    key={i}
+                    className={styles.miniAvatar}
+                    style={{ zIndex: 10 - i }}
                   >
-                    Request Docking
-                  </button>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        ) : (
-          /* --- VIEW 2: ACTIVE BRIDGE (INSIDE ROOM) --- */
-          <motion.div
-            key="room"
-            variants={fadeUp}
-            initial="hidden"
-            animate="show"
-            exit="exit"
-            className={styles.activeRoom}
-          >
-            {/* ROOM HEADER & MASTER TIMER */}
-            <div className={styles.roomHeader}>
-              <div>
-                <h2 className={styles.roomTitle}>{current.name}</h2>
-                <p className={styles.roomSubtitle}>Host: {current.host}</p>
-              </div>
-              <div className={styles.masterTimer}>
-                {roomTimer.running
-                  ? `${Math.floor(roomTimer.seconds / 60)}:${String(roomTimer.seconds % 60).padStart(2, "0")}`
-                  : "00:00"}
-              </div>
-              <div className={styles.roomControls}>
-                {!roomTimer.running && (
-                  <button className="launch-btn small" onClick={hostStart}>
-                    Initiate Sync
-                  </button>
-                )}
-                <button className="launch-btn alt small" onClick={leave}>
-                  Sever Link
-                </button>
-              </div>
-            </div>
-
-            <div className={styles.roomLayout}>
-              {/* LEFT: PILOT GRID (WebRTC Placeholder) */}
-              <div className={styles.pilotGrid}>
-                {current.participants.map((p, i) => (
-                  <div key={i} className={styles.pilotSeat}>
-                    <div className={styles.avatarPlaceholder} />
-                    <span className={styles.pilotName}>{p}</span>
-                    <span className={styles.ping}>
-                      PING: {Math.floor(Math.random() * 40 + 12)}ms
-                    </span>
+                    {initial}
                   </div>
                 ))}
-                {/* Empty slots */}
-                {Array.from({ length: 6 - current.participants.length }).map(
-                  (_, i) => (
-                    <div key={`empty-${i}`} className={styles.pilotSeatEmpty}>
-                      Open Seat
-                    </div>
-                  ),
+                {room.capacity > room.members.length && (
+                  <div className={styles.emptySlot}>
+                    +{room.capacity - room.members.length}
+                  </div>
                 )}
               </div>
 
-              {/* RIGHT: COMMS LINK (Chat) */}
-              <div className={styles.commsPanel}>
-                <div className={styles.commsHeader}>
-                  <MessageSquare size={16} /> Comms Link
-                </div>
-
-                <div className={styles.chatHistory}>
-                  <div className={styles.sysMessage}>
-                    Connection established with Fleet server.
-                  </div>
-                  <div className={styles.chatMessage}>
-                    <b>{current.host}:</b> Ready for the next jump?
-                  </div>
-                </div>
-
-                <div className={styles.chatInputArea}>
-                  {roomTimer.running ? (
-                    <div className={styles.commsDisabled}>
-                      <ShieldAlert size={16} /> COMMS OFFLINE DURING HYPERSPACE
-                    </div>
-                  ) : (
-                    <input
-                      type="text"
-                      className={styles.chatInput}
-                      placeholder="Transmit message..."
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                    />
-                  )}
-                </div>
+              <div className={styles.hostInfo}>
+                Host: <strong>{room.host}</strong>
               </div>
             </div>
+
+            {/* Contextual Action Button */}
+            <div className={styles.cardFooter}>
+              {room.status === "open" && (
+                <button className={`launch-btn ${styles.joinBtn}`}>
+                  Join Room
+                </button>
+              )}
+              {room.status === "active" && (
+                <button className={`launch-btn alt ${styles.joinBtn}`} disabled>
+                  <Clock size={16} /> {room.timeLeft}
+                </button>
+              )}
+              {room.status === "full" && (
+                <button
+                  className={`launch-btn alt ${styles.joinBtn}`}
+                  disabled
+                  style={{ opacity: 0.5 }}
+                >
+                  <Lock size={16} /> Capacity Reached
+                </button>
+              )}
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        ))}
+      </motion.div>
     </div>
   );
 }

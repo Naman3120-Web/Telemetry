@@ -1,11 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Rajdhani:wght@500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
 
-/* --- 1. GLOBAL RESET & VIEWPORT LOCK --- */
+/* --- 1. GLOBAL RESET & VARIABLES --- */
 * {
   box-sizing: border-box;
 }
 
 :root {
+  /* Dynamic Mouse Coordinates for Landing Flashlight */
   --mx: 50%;
   --my: 50%;
   
@@ -13,19 +14,36 @@
   --font-ui: 'Inter', sans-serif;
   --font-display: 'Rajdhani', sans-serif;
   --font-data: 'Space Mono', monospace;
+
+  /* Premium SaaS Palette */
+  --bg-deep: #0A0B13;
+  --bg-card: #101421;
+  --bg-card-hover: #171B2D;
+  
+  --accent-red: #FF3B3B;
+  --accent-red-dim: rgba(255, 59, 59, 0.15);
+  
+  --success: #00E599;
+  --success-dim: rgba(0, 229, 153, 0.15);
+  
+  --relax-cyan: #3BC9FF;
+  --xp-gold: #FFD54A;
 }
 
-html,
-body,
-#root {
+html, body, #root {
   height: 100vh;
   width: 100vw;
   margin: 0;
   padding: 0;
   overflow: hidden; /* Stops entire page from scrolling */
+  background: var(--bg-deep);
+  color: #ffffff;
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* THE CURSOR NUKE - Completely overrides default browser cursors */
+/* --- THE CURSOR NUKE --- */
+/* Completely overrides default browser cursors */
 html, body, #root, * {
   cursor: none !important;
 }
@@ -35,40 +53,42 @@ button, a, input, select, textarea {
   cursor: none !important;
 }
 
+/* Hide global scrollbars */
 body {
-  background: #0a0a0a;
-  color: #ffffff;
-  font-family: var(--font-ui);
-  
-  /* Hide global scrollbars just in case */
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-
 body::-webkit-scrollbar {
   display: none;
 }
 
 /* --- 2. THE ROOT APP CONTAINER --- */
-.root {
+.appWrapper {
   position: relative;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  color: #ffffff;
-  background: linear-gradient(135deg, #0a0a0a 0%, #15151f 50%, #0a0a0a 100%);
 }
 
-/* --- 3. IMMERSIVE BACKGROUNDS --- */
+/* --- 3. IMMERSIVE BACKGROUNDS & FLASHLIGHT MASK --- */
 .starfield {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 1;
+  background-image: 
+    radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 50px 160px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 130px 80px, #ffffff, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.15;
 }
 
+/* The Flashlight Reveal on the Landing Page */
 .intro-mode .starfield {
   -webkit-mask-image: radial-gradient(
     circle at var(--mx) var(--my),
@@ -85,212 +105,75 @@ body::-webkit-scrollbar {
 .ship-mode .starfield {
   -webkit-mask-image: none;
   mask-image: none;
+  transition: mask-image 1s ease;
 }
 
-.star {
+/* The Subtle Nebula Depth Layer */
+.nebulaLayer {
   position: absolute;
-  background: #ffffff;
-  border-radius: 50%;
-  opacity: 0.35;
-  animation: twinkle 3s ease-in-out infinite;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 80% 20%, rgba(59, 201, 255, 0.03) 0%, transparent 40%),
+    radial-gradient(circle at 20% 80%, rgba(255, 59, 59, 0.03) 0%, transparent 40%);
+  filter: blur(80px);
+  z-index: 0;
+  pointer-events: none;
 }
 
-@keyframes twinkle {
-  0%, 100% { opacity: 0.2; transform: scale(1); }
-  50% { opacity: 0.95; transform: scale(1.2); }
-}
-
-/* --- 4. FLOATING CORNER NAVIGATION --- */
-.topBar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 32px 52px;
-  background: transparent;
-  border-bottom: none;
-  backdrop-filter: none;
-  pointer-events: none; /* Allows clicking through the empty middle space */
-}
-
-/* Re-enable clicking only for the buttons inside the transparent top bar */
-.topBar > * {
-  pointer-events: auto;
-}
-
-.backButton {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #f8fafc;
-  border-radius: 999px;
-  padding: 12px 24px;
-  transition: transform 0.2s ease, background 0.2s ease;
-  font-family: var(--font-display);
-  font-weight: 600;
+/* --- 4. HUD DETAILS --- */
+.hudCoordinates {
+  position: absolute;
+  bottom: 24px;
+  right: 32px;
+  font-family: var(--font-data);
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.2);
+  text-align: right;
   letter-spacing: 0.1em;
-  font-size: 0.9rem;
+  z-index: 10;
+  pointer-events: none;
 }
 
-.backButton:hover {
-  background: rgba(220, 38, 38, 0.15);
-  transform: translateX(-2px);
+/* --- 5. PREMIUM UI UTILITIES --- */
+.premium-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 20px;
+  /* Inner highlight creates a tangible "glass edge" */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 20px 40px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* --- 5. TIGHTENED DASHBOARD HEADER --- */
-.dashboard {
-  position: relative;
-  z-index: 2;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  width: 100%;
-  padding: 80px 52px 32px; /* Reduced top padding */
-}
-
-.shipHeader {
-  flex-shrink: 0;
-  text-align: center;
-  margin-bottom: 16px; /* Reduced margin */
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  width: 100%;
-}
-
-.sectionLabel {
-  margin: 0 0 8px;
-  font-size: 0.75rem;
-  color: #9ca3af;
-  text-transform: uppercase;
-  letter-spacing: 0.24em;
-  font-family: var(--font-display);
-}
-
-.shipTitle {
-  margin: 0 0 4px;
-  font-size: clamp(2rem, 4vw, 3.2rem); /* Shrunk significantly */
-  line-height: 1.1;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-family: var(--font-display);
-  font-weight: 700;
-}
-
-.shipSubtitle {
-  margin: 0;
-  color: #cbd5e1;
-  line-height: 1.5;
-  font-size: 0.9rem;
-}
-
-/* --- 6. THE OPEN LAYOUT (Sidebar & Main Panel) --- */
-.shipLayout {
-  display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
-  gap: 32px;
-  width: 100%;
-  max-width: 1600px;
-  margin: 0 auto;
-  flex: 1; /* Fills remaining space */
-  overflow: hidden;
-}
-
-/* Vertically centered sidebar */
-.sidebar {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 28px;
-  padding: 28px;
-  backdrop-filter: blur(18px);
-  height: fit-content; 
-  align-self: center; /* Floats perfectly in the middle */
-  max-height: 100%;
-  overflow-y: auto;
-  
-  /* Hide scrollbar */
-  scrollbar-width: none; 
-  -ms-overflow-style: none;
-}
-
-.sidebarHeading {
-  margin: 0 0 18px;
-  color: #9ca3af;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-family: var(--font-display);
-  font-size: 0.85rem;
-}
-
-.featureList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 14px;
-}
-
-.featureList li {
-  color: #cbd5e1;
-  line-height: 1.7;
-  font-size: 0.98rem;
-}
-
-/* Unboxed Main Panel */
-.sectionPanel {
-  height: 100%;
-  width: 100%;
-  padding: 0; 
-  background: transparent; 
-  border: none; 
-  display: block; 
-  overflow-y: auto; 
-  
-  /* Hide scrollbar */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-/* Hide webkit scrollbars globally for layout panels */
-.sidebar::-webkit-scrollbar,
-.sectionPanel::-webkit-scrollbar {
-  display: none;
-}
-
-/* --- 7. UI COMPONENTS & BUTTONS --- */
-.glass {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  padding: 24px;
-  backdrop-filter: blur(8px);
+.premium-card:hover {
+  transform: translateY(-2px);
+  background: var(--bg-card-hover);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 25px 50px rgba(0, 0, 0, 0.5);
 }
 
 .launch-btn {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 16px 32px;
+  border-radius: 12px;
+  cursor: none !important;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: #dc2626;
-  border: none;
-  padding: 16px 32px;
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  border-radius: 999px;
-  transition: transform 0.2s ease, background 0.2s ease;
-  font-family: var(--font-display);
 }
 
 .launch-btn:hover {
-  background: #b91c1c;
-  transform: translateY(-1px);
+  border-color: var(--accent-red);
+  box-shadow: 0 4px 20px var(--accent-red-dim);
+  background: rgba(255, 59, 59, 0.05);
+  transform: translateY(-2px);
 }
 
 .launch-btn:active {
@@ -298,65 +181,176 @@ body::-webkit-scrollbar {
 }
 
 .launch-btn.alt {
-  background: rgba(255, 255, 255, 0.08);
-  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #9ca3af;
 }
 
-.hull-warning {
-  color: #ffb4b4;
-  background: rgba(220, 38, 38, 0.08);
-  padding: 12px 14px;
-  border-radius: 14px;
+.launch-btn.alt:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
+}
+
+/* --- 6. TOP NAVIGATION --- */
+.topBar, .topNav {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 48px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-family: var(--font-display);
-  letter-spacing: 0.1em;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  text-align: center;
+  color: #ffffff;
 }
 
-/* Shared Typography Overrides */
-h1, h2, h3 {
+.brandIcon {
+  color: var(--accent-red);
+}
+
+/* User Identity Widget */
+.userWidget {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 6px 6px 16px;
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+
+.userWidget:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.userStats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.userLevel {
   font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
   letter-spacing: 0.1em;
+  color: #9ca3af;
+  text-transform: uppercase;
 }
 
-.panel-copy {
-  color: #cbd5e1;
-  line-height: 1.7;
+.userXp {
+  font-family: var(--font-data);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--xp-gold);
 }
+
+.userAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-card-hover);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+/* --- 7. MAIN DASHBOARD LAYOUT --- */
+.mainLayout {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 40px;
+  padding: 0 48px 48px;
+  min-height: 0; 
+}
+
+/* Left Sidebar Checklist */
+.leftSidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.objectiveCard {
+  padding: 28px;
+}
+
+.sidebarTitle {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  color: #9ca3af;
+  margin: 0 0 24px;
+  text-transform: uppercase;
+}
+
+.objectiveList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.objectiveItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.objectiveIcon { color: var(--success); margin-top: 2px; }
+.objectiveIconPending { color: #475569; margin-top: 2px; }
+
+.objectiveProgress {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 16px;
+  font-family: var(--font-data);
+  font-size: 0.75rem;
+  color: #64748b;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Content Area Wrapper */
+.contentArea {
+  position: relative;
+  border-radius: 20px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.contentArea::-webkit-scrollbar { display: none; }
 
 /* --- 8. RESPONSIVE DESIGN --- */
 @media (max-width: 1120px) {
-  .dashboard {
-    padding: 80px 36px 32px;
-  }
-  .topBar {
-    padding: 24px 36px;
-  }
+  .topNav { padding: 24px 36px; }
+  .mainLayout { padding: 0 36px 36px; gap: 32px; }
 }
 
-@media (max-width: 900px) {
-  .dashboard {
-    padding: 80px 20px 24px;
-    overflow-y: auto; 
-  }
-
-  .topBar {
-    padding: 16px 20px;
-  }
-
-  .shipLayout {
+@media (max-width: 960px) {
+  .mainLayout {
     grid-template-columns: 1fr;
-    overflow: visible; 
+    padding: 0 24px 24px;
   }
-
-  .sidebar {
-    order: 2; 
-    align-self: stretch;
-    height: auto;
-  }
-
-  .sectionPanel {
-    height: auto;
-    overflow: visible;
-  }
+  .topNav { padding: 24px; flex-direction: column; gap: 20px; }
+  .leftSidebar { display: none; }
 }

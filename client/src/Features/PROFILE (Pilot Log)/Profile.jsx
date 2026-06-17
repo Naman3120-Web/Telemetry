@@ -61,10 +61,16 @@ export default function Profile({ user, setUser }) {
       >
         {/* --- LEFT COLUMN: DOSSIER --- */}
         <div className={styles.leftColumn}>
-          <motion.div variants={fadeUp} className={styles.dossierCard}>
+          <motion.div
+            variants={fadeUp}
+            className={`premium-card ${styles.dossierCard}`}
+          >
             <div className={styles.cardHeader}>
-              <User className={styles.headerIcon} size={20} />
-              <h2>Pilot Dossier</h2>
+              <div className={styles.titleBlock}>
+                <User className={styles.headerIcon} size={22} />
+                <h2 className={styles.pageTitle}>Pilot Profile</h2>
+              </div>
+              <span className={styles.loreTag}>Dossier</span>
             </div>
 
             <div className={styles.avatarSection}>
@@ -126,10 +132,15 @@ export default function Profile({ user, setUser }) {
             </div>
           </motion.div>
 
-          <motion.div variants={fadeUp} className={styles.badgesCard}>
+          <motion.div
+            variants={fadeUp}
+            className={`premium-card ${styles.badgesCard}`}
+          >
             <div className={styles.cardHeader}>
-              <Award className={styles.headerIcon} size={20} />
-              <h2>Service Badges</h2>
+              <div className={styles.titleBlock}>
+                <Award className={styles.headerIcon} size={22} />
+                <h2 className={styles.pageTitle}>Achievements</h2>
+              </div>
             </div>
             <div className={styles.badgeGrid}>
               <div className={`${styles.badge} ${styles.earned}`}>
@@ -154,11 +165,18 @@ export default function Profile({ user, setUser }) {
 
         {/* --- RIGHT COLUMN: THE RULEBOOK --- */}
         <div className={styles.rightColumn}>
-          <motion.div variants={fadeUp} className={styles.protocolCard}>
+          <motion.div
+            variants={fadeUp}
+            className={`premium-card ${styles.protocolCard}`}
+          >
             <div className={styles.cardHeader}>
-              <Terminal className={styles.headerIconAlt} size={20} />
-              <h2>Telemetry XP Protocols</h2>
+              <div className={styles.titleBlock}>
+                <Terminal className={styles.headerIconAlt} size={22} />
+                <h2 className={styles.pageTitle}>XP Rules</h2>
+              </div>
+              <span className={styles.loreTag}>Telemetry Protocols</span>
             </div>
+
             <p className={styles.protocolIntro}>
               Advancement through the fleet requires absolute focus. Your neural
               link is monitored during all hyperspace jumps. Adhere to the
@@ -173,7 +191,7 @@ export default function Profile({ user, setUser }) {
                 <li>
                   <span className={styles.gainTag}>+25 XP</span>
                   <div className={styles.ruleText}>
-                    <strong>Solo Hyperspace Completion</strong>
+                    <strong>Focus Session Completion</strong>
                     <span>
                       Successfully maintaining focus for a standard 25-minute
                       orbital cycle.
@@ -211,7 +229,7 @@ export default function Profile({ user, setUser }) {
                 <li>
                   <span className={styles.lossTag}>-10 XP</span>
                   <div className={styles.ruleText}>
-                    <strong>Hull Breach</strong>
+                    <strong>Focus Breach</strong>
                     <span>
                       Navigating away from the dashboard or minimizing the app
                       during an active focus jump. Immediate mission failure.

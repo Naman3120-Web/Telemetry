@@ -27,7 +27,6 @@ export default function Relax() {
   }, [running]);
 
   // --- BREATHING PHASE CALCULATOR ---
-  // A standard relaxation cycle: 4s Inhale, 4s Hold, 4s Exhale, 4s Hold (16s total)
   useEffect(() => {
     if (!running) {
       if (secondsLeft === INITIAL_TIME) setPhase("AWAITING SYNC");
@@ -54,18 +53,23 @@ export default function Relax() {
   return (
     <div className={styles.relaxShell}>
       <motion.div
-        className={styles.relaxCard}
+        className={`premium-card ${styles.relaxCard}`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
       >
+        {/* 70% Functional / 30% Lore Typography */}
         <div className={styles.header}>
-          <Snowflake className={styles.cryoIcon} size={28} />
-          <h2 className={styles.title}>Cryo-Chamber</h2>
+          <div className={styles.titleBlock}>
+            <Snowflake className={styles.headerIcon} size={24} />
+            <h2 className={styles.pageTitle}>Guided Breathing</h2>
+          </div>
+          <span className={styles.loreTag}>Protocol: Cryo-Chamber</span>
         </div>
 
         <p className={styles.subtitle}>
-          Lower your heart rate. Sync your breathing to the cooling core.
+          Lower your heart rate. Sync your breathing to the visual core to
+          restore focus.
         </p>
 
         {/* --- BREATHING CORE VISUAL --- */}
@@ -122,18 +126,27 @@ export default function Relax() {
 
         <div className={styles.controls}>
           <button
-            className={`${styles.cryoBtn} ${running ? styles.activeBtn : ""}`}
+            className={`launch-btn ${running ? styles.activeBtn : ""}`}
+            style={
+              !running
+                ? {
+                    background: "rgba(59, 201, 255, 0.1)",
+                    borderColor: "var(--relax-cyan)",
+                    color: "var(--relax-cyan)",
+                  }
+                : {}
+            }
             onClick={toggleTimer}
           >
             <Wind size={18} />
-            {running ? "Suspend Cryo" : "Initiate Sequence"}
+            {running ? "Pause Session" : "Start Session"}
           </button>
-          <button
-            className={`${styles.cryoBtn} ${styles.altBtn}`}
-            onClick={resetTimer}
-          >
-            Flush Core
-          </button>
+
+          {!running && secondsLeft !== INITIAL_TIME && (
+            <button className="launch-btn alt" onClick={resetTimer}>
+              Reset
+            </button>
+          )}
         </div>
       </motion.div>
     </div>

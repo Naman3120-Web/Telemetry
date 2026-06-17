@@ -147,12 +147,12 @@ export default function Focus({ awardXP }) {
           )}
         </AnimatePresence>
 
-        <h2 className={styles.focusTitle}>Solo Hyperspace</h2>
+        <h2 className={styles.focusTitle}>Solo Hyperspace<br/>(POMODARO SESSION)</h2>
         <p className="panel-copy">
-          Mission:
+          Write Your Mission Here:
           <input
             className={styles.taskInput}
-            placeholder="Awaiting objective..."
+            placeholder="Eg. coding"
             value={task}
             onChange={(e) => setTask(e.target.value)}
             disabled={running || pauseCountdown !== null}

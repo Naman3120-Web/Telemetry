@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import styles from "./Navbar.module.css";
 
 const navItems = ["home", "focus", "rooms", "relax", "profile"];
@@ -20,6 +21,14 @@ export default function Navbar() {
               onClick={() => navigate(item === "home" ? "/" : `/${item}`)}
             >
               {item.toUpperCase()}
+
+              {/* Premium UI: Animated glowing underline */}
+              {activeSection === item && (
+                <motion.div
+                  layoutId="activeIndicator"
+                  className={styles.activeIndicator}
+                />
+              )}
             </button>
           </li>
         ))}
