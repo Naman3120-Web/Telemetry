@@ -28,6 +28,7 @@ import Focus from "./Features/FOCUS (Solo Hyperspace)/Focus.jsx";
 import Rooms from "./Features/ROOMS (Fleet Formation)/Rooms.jsx";
 import Relax from "./Features/RELAX (Cryo-Chamber)/Relax.jsx";
 import Profile from "./Features/PROFILE (Pilot Log)/Profile.jsx";
+import Register from "./Features/Auth/Registeration.jsx";
 
 // --- DYNAMIC SIDEBAR DATA ---
 const SIDEBAR_CONTENT = {
@@ -81,19 +82,25 @@ const SIDEBAR_CONTENT = {
       "Study XP positive/negative protocols.",
     ],
   },
+  "/register": {
+    // ✅ FIXED: Moved out of /profile so it sits at the root level correctly!
+    title: "Pilot Registration",
+    icon: ShieldCheck,
+    color: "var(--accent-red)",
+    tasks: [
+      "Enter secure credentials to establish identity.",
+      "Verify connection to Telemetry database.",
+      "Prepare for initial sequence launch.",
+    ],
+  },
 };
 
 function App() {
   const [isBoarded, setIsBoarded] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation(); // Gets the current route
+  const location = useLocation();
 
-  // Determine which sidebar data to show based on URL path
-  const currentSidebarInfo =
-    SIDEBAR_CONTENT[location.pathname] || SIDEBAR_CONTENT["/"];
-  const SidebarIcon = currentSidebarInfo.icon;
-
-  // --- LOCAL STORAGE STATE ---
+  // --- LOCAL STORAGE STATE ENGINE ---
   const [user, setUser] = useState(() => {
     try {
       const raw = localStorage.getItem("telemetry_user");
@@ -112,133 +119,235 @@ function App() {
     localStorage.setItem("telemetry_user", JSON.stringify(user));
   }, [user]);
 
-  // Safe XP Awarding Function
+  // XP Handler
   const awardXP = (amount) => {
     setUser((u) => ({ ...u, xp: Math.max(0, (u.xp || 0) + amount) }));
   };
 
+  // Helper Flags
+  const hasAccount = user.isRegistered === true;
+  const currentSidebarInfo =
+    SIDEBAR_CONTENT[location.pathname] || SIDEBAR_CONTENT["/"];
+  const SidebarIcon = currentSidebarInfo.icon;
+
+  // ==========================================
+  // STAGE 1: THE LANDING GATEWAY
+  // ==========================================
+  if (!isBoarded) {
+    return (
+      <main className="appWrapper intro-mode">
+        <Starfield />
+        <div className="nebulaLayer" />
+        <CursorTrail />
+        <Landing
+          onLaunch={() => {
+            setIsBoarded(true);
+            navigate("/register");
+          }}
+        />
+      </main>
+    );
+  }
+
+  // ==========================================
+  // STAGE 2: THE REGISTRATION OUTPOST (With Sidebar, No Level/Nav Links)
+  // ==========================================
+  if (!hasAccount) {
+    return (
+      <main className="appWrapper ship-mode">
+        {/* Background Layers */}
+        <Starfield />
+        <div className="nebulaLayer" />
+        <CursorTrail />
+
+        {/* Clean Header: Just the branding icon, hiding the navbar links and level stats */}
+        <header className="topNav">
+          <div className="brand">
+            <Hexagon className="brandIcon" size={24} />
+            <span>Telemetry</span>
+          </div>
+        </header>
+
+        {/* Main Layout Shell */}
+        <div className="mainLayout">
+          {/* Left Sidebar: Now visible and automatically showing Registration Objective! */}
+          <aside className="leftSidebar">
+            <div className="premium-card objectiveCard">
+              <h3 className="sidebarTitle">Current Objective</h3>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  marginBottom: "16px",
+                  color: currentSidebarInfo.color,
+                }}
+              >
+                <SidebarIcon size={20} />
+                <span
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontWeight: "600",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                  }}
+                >
+                  {currentSidebarInfo.title}
+                </span>
+              </div>
+
+              <ul className="objectiveList">
+                {currentSidebarInfo.tasks.map((task, index) => (
+                  <li key={index} className="objectiveItem">
+                    <div
+                      style={{
+                        width: "6px",
+                        height: "6px",
+                        borderRadius: "50%",
+                        background: currentSidebarInfo.color,
+                        marginTop: "8px",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: "0.85rem",
+                        lineHeight: "1.5",
+                        color: "#94a3b8",
+                      }}
+                    >
+                      {task}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </aside>
+
+          {/* Right Panel: Centers your registration form perfectly */}
+          <section className="contentArea">
+            <Routes>
+              <Route
+                path="/register"
+                element={<Register setUser={setUser} />}
+              />
+              <Route path="*" element={<Navigate to="/register" replace />} />
+            </Routes>
+          </section>
+        </div>
+      </main>
+    );
+  }
+
+  // ==========================================
+  // STAGE 3: THE MAIN SECURE DASHBOARD SHELL
+  // ==========================================
   return (
-    <main className={`appWrapper ${isBoarded ? "ship-mode" : "intro-mode"}`}>
-      {/* Background Layers */}
+    <main className="appWrapper ship-mode">
+      {/* Persistent Space Effects */}
       <Starfield />
       <div className="nebulaLayer" />
       <CursorTrail />
 
-      {!isBoarded ? (
-        <Landing onLaunch={() => setIsBoarded(true)} />
-      ) : (
-        <>
-          {/* Tiny HUD Details */}
-          <div className="hudCoordinates">
-            SECTOR 07
-            <br />
-            X: 2041 Y: 811
+      {/* --- TOP NAVIGATION BAR --- */}
+      <header className="topNav">
+        <div className="brand">
+          <Hexagon className="brandIcon" size={24} />
+          <span>Telemetry</span>
+        </div>
+
+        <Navbar />
+
+        {/* Top-Right User Widget */}
+        <div className="userWidget" onClick={() => navigate("/profile")}>
+          <div className="userStats">
+            <span className="userLevel">LEVEL {user.level}</span>
+            <span className="userXp">{user.xp.toLocaleString()} XP</span>
           </div>
+          <div className="userAvatar">
+            {user?.username?.charAt(0).toUpperCase() || "P"}
+          </div>
+        </div>
+      </header>
 
-          {/* --- TOP NAVIGATION BAR --- */}
-          <header className="topNav">
-            <div className="brand">
-              <Hexagon className="brandIcon" size={24} />
-              <span>Telemetry</span>
+      {/* --- MAIN DASHBOARD LAYOUT --- */}
+      <div className="mainLayout">
+        {/* Left Sidebar */}
+        <aside className="leftSidebar">
+          <div className="premium-card objectiveCard">
+            <h3 className="sidebarTitle">Current Objective</h3>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                marginBottom: "16px",
+                color: currentSidebarInfo.color,
+              }}
+            >
+              <SidebarIcon size={20} />
+              <span
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontWeight: "600",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                }}
+              >
+                {currentSidebarInfo.title}
+              </span>
             </div>
 
-            <Navbar />
-
-            {/* Top-Right User Widget */}
-            <div className="userWidget" onClick={() => navigate("/profile")}>
-              <div className="userStats">
-                <span className="userLevel">LEVEL {user.level}</span>
-                <span className="userXp">{user.xp.toLocaleString()} XP</span>
-              </div>
-              <div className="userAvatar">
-                {user?.username?.charAt(0).toUpperCase() || "P"}
-              </div>
-            </div>
-          </header>
-
-          {/* --- MAIN DASHBOARD LAYOUT --- */}
-          <div className="mainLayout">
-            {/* Left Sidebar: DYNAMIC SECTION INFO */}
-            <aside className="leftSidebar">
-              <div className="premium-card objectiveCard">
-                <h3 className="sidebarTitle">Current Objective</h3>
-
-                {/* Dynamic Title based on section */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "10px",
-                    marginBottom: "16px",
-                    color: currentSidebarInfo.color,
-                  }}
-                >
-                  <SidebarIcon size={20} />
+            <ul className="objectiveList">
+              {currentSidebarInfo.tasks.map((task, index) => (
+                <li key={index} className="objectiveItem">
+                  <div
+                    style={{
+                      width: "6px",
+                      height: "6px",
+                      borderRadius: "50%",
+                      background: currentSidebarInfo.color,
+                      marginTop: "8px",
+                      flexShrink: 0,
+                    }}
+                  />
                   <span
                     style={{
-                      fontFamily: "var(--font-display)",
-                      fontWeight: "600",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.1em",
+                      fontSize: "0.85rem",
+                      lineHeight: "1.5",
+                      color: "#94a3b8",
                     }}
                   >
-                    {currentSidebarInfo.title}
+                    {task}
                   </span>
-                </div>
-
-                <ul className="objectiveList">
-                  {currentSidebarInfo.tasks.map((task, index) => (
-                    <li key={index} className="objectiveItem">
-                      <div
-                        style={{
-                          width: "6px",
-                          height: "6px",
-                          borderRadius: "50%",
-                          background: currentSidebarInfo.color,
-                          marginTop: "8px",
-                          flexShrink: 0,
-                        }}
-                      />
-                      <span
-                        style={{
-                          fontSize: "0.85rem",
-                          lineHeight: "1.5",
-                          color: "#94a3b8",
-                        }}
-                      >
-                        {task}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </aside>
-
-            {/* Right Panel: Active React Router Component */}
-            <section className="contentArea">
-              <Routes>
-                <Route
-                  path="/"
-                  element={
-                    <Home
-                      user={user}
-                      onQuickLaunch={() => navigate("/focus")}
-                    />
-                  }
-                />
-                <Route path="/focus" element={<Focus awardXP={awardXP} />} />
-                <Route path="/rooms" element={<Rooms user={user} />} />
-                <Route path="/relax" element={<Relax />} />
-                <Route
-                  path="/profile"
-                  element={<Profile user={user} setUser={setUser} />}
-                />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </section>
+                </li>
+              ))}
+            </ul>
           </div>
-        </>
-      )}
+        </aside>
+
+        {/* Center Panel Router */}
+        <section className="contentArea">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <Home user={user} onQuickLaunch={() => navigate("/focus")} />
+              }
+            />
+            <Route path="/focus" element={<Focus awardXP={awardXP} />} />
+            <Route path="/rooms" element={<Rooms user={user} />} />
+            <Route path="/relax" element={<Relax />} />
+            <Route
+              path="/profile"
+              element={<Profile user={user} setUser={setUser} />}
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </section>
+      </div>
     </main>
   );
 }
