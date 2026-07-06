@@ -6,8 +6,8 @@ import {
   useNavigate,
   useLocation,
 } from "react-router-dom";
+import api from "./api/axios";
 import {
-  Hexagon,
   Info,
   Crosshair,
   Users,
@@ -15,22 +15,20 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import "./App.css";
-
-// Components
+import defaultAvatar from "/assets/default-avatar.avif";
 import Landing from "./components/Landing.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Starfield from "./components/Starfield.jsx";
 import CursorTrail from "./components/CustomCursor.jsx";
 
-// Features
 import Home from "./Features/HOME (Command Center)/Home.jsx";
 import Focus from "./Features/FOCUS (Solo Hyperspace)/Focus.jsx";
 import Rooms from "./Features/ROOMS (Fleet Formation)/Rooms.jsx";
 import Relax from "./Features/RELAX (Cryo-Chamber)/Relax.jsx";
 import Profile from "./Features/PROFILE (Pilot Log)/Profile.jsx";
 import Register from "./Features/Auth/Registeration.jsx";
+import Login from "./Features/Auth/Login.jsx";
 
-// --- DYNAMIC SIDEBAR DATA ---
 const SIDEBAR_CONTENT = {
   "/": {
     title: "Command Center",
@@ -83,7 +81,6 @@ const SIDEBAR_CONTENT = {
     ],
   },
   "/register": {
-    // ✅ FIXED: Moved out of /profile so it sits at the root level correctly!
     title: "Pilot Registration",
     icon: ShieldCheck,
     color: "var(--accent-red)",
@@ -93,45 +90,109 @@ const SIDEBAR_CONTENT = {
       "Prepare for initial sequence launch.",
     ],
   },
+  "/login": {
+    title: "Pilot Authentication",
+    icon: ShieldCheck,
+    color: "var(--relax-cyan)",
+    tasks: [
+      "Provide secure credentials to re-establish identity.",
+      "Verify connection to Telemetry database.",
+      "Awaiting access clearance.",
+    ],
+  },
 };
 
-function App() {
-  const [isBoarded, setIsBoarded] = useState(false);
+export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // --- LOCAL STORAGE STATE ENGINE ---
-  const [user, setUser] = useState(() => {
-    try {
-      const raw = localStorage.getItem("telemetry_user");
-      return raw
-        ? JSON.parse(raw)
-        : { username: "Pilot", xp: 0, level: 0, badges: [] };
-    } catch (e) {
-      return { username: "Pilot", xp: 0, level: 0, badges: [] };
-    }
-  });
+  const [isBoarded, setIsBoarded] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  // Calculate Level & Sync to Local Storage
-  useEffect(() => {
-    const lv = Math.floor((user.xp || 0) / 1000);
-    if (lv !== user.level) setUser((u) => ({ ...u, level: lv }));
-    localStorage.setItem("telemetry_user", JSON.stringify(user));
-  }, [user]);
+  const [user, setUser] = useState({ username: "Pilot", xp: 0, level: 0 });
 
-  // XP Handler
-  const awardXP = (amount) => {
-    setUser((u) => ({ ...u, xp: Math.max(0, (u.xp || 0) + amount) }));
-  };
-
-  // Helper Flags
-  const hasAccount = user.isRegistered === true;
   const currentSidebarInfo =
     SIDEBAR_CONTENT[location.pathname] || SIDEBAR_CONTENT["/"];
   const SidebarIcon = currentSidebarInfo.icon;
 
+  /**
+   * SESSION HYDRATION PROTOCOL
+   * On mount, polls the backend to verify the presence of a valid JWT cookie.
+   * If a valid session exists, it populates the pilot's exact stats from the database
+   * and bypasses the landing/login sequences automatically.
+   */
+  useEffect(() => {
+    const verifySecureLink = async () => {
+      try {
+        const response = await api.get("/auth/verify");
+
+        if (response.status === 200) {
+          const dbUser = response.data.user;
+          const currentXp = dbUser?.xp || 0;
+
+          setIsAuthenticated(true);
+          setIsBoarded(true); // Automatically skip landing page
+          setUser({
+            username: dbUser?.username || "Pilot",
+            xp: currentXp,
+            level: Math.floor(currentXp / 1000),
+          });
+        }
+      } catch (err) {
+        setIsAuthenticated(false);
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    verifySecureLink();
+  }, []);
+
+  /**
+   * LEVEL CALCULATION ENGINE
+   * Continuously monitors XP state and cleanly derives the current Level.
+   * This ensures the UI remains consistent whenever XP is mutated.
+   */
+  useEffect(() => {
+    const calculatedLevel = Math.floor((user.xp || 0) / 1000);
+    if (calculatedLevel !== user.level) {
+      setUser((prevUser) => ({ ...prevUser, level: calculatedLevel }));
+    }
+  }, [user.xp]);
+
+  const awardXP = (amount) => {
+    setUser((u) => ({ ...u, xp: Math.max(0, (u.xp || 0) + amount) }));
+  };
+
   // ==========================================
-  // STAGE 1: THE LANDING GATEWAY
+  // STAGE 0: LOADING (Awaiting Backend Response)
+  // ==========================================
+  if (isCheckingAuth) {
+    return (
+      <main
+        className="appWrapper intro-mode"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Starfield />
+        <h2
+          style={{
+            color: "var(--relax-cyan)",
+            fontFamily: "var(--font-display)",
+          }}
+        >
+          Establishing Secure Connection...
+        </h2>
+      </main>
+    );
+  }
+
+  // ==========================================
+  // STAGE 1: INAUGURAL DEPLOYMENT (Landing Page)
   // ==========================================
   if (!isBoarded) {
     return (
@@ -142,7 +203,7 @@ function App() {
         <Landing
           onLaunch={() => {
             setIsBoarded(true);
-            navigate("/register");
+            navigate("/login"); // Immediately direct to Login per design rules
           }}
         />
       </main>
@@ -150,31 +211,36 @@ function App() {
   }
 
   // ==========================================
-  // STAGE 2: THE REGISTRATION OUTPOST (With Sidebar, No Level/Nav Links)
+  // STAGE 2: AUTHENTICATION OUTPOST (Not Logged In)
   // ==========================================
-  if (!hasAccount) {
+  if (!isAuthenticated) {
     return (
       <main className="appWrapper ship-mode">
-        {/* Background Layers */}
         <Starfield />
         <div className="nebulaLayer" />
         <CursorTrail />
 
-        {/* Clean Header: Just the branding icon, hiding the navbar links and level stats */}
         <header className="topNav">
           <div className="brand">
-            <Hexagon className="brandIcon" size={24} />
+            <img
+              src="/assets/icon.png"
+              alt="Telemetry Icon"
+              className="brandIcon"
+              style={{
+                width: "80px",
+                height: "80px",
+                filter: "invert(1)", 
+                opacity: 0.9, 
+              }}
+            />
             <span>Telemetry</span>
           </div>
         </header>
 
-        {/* Main Layout Shell */}
         <div className="mainLayout">
-          {/* Left Sidebar: Now visible and automatically showing Registration Objective! */}
           <aside className="leftSidebar">
             <div className="premium-card objectiveCard">
               <h3 className="sidebarTitle">Current Objective</h3>
-
               <div
                 style={{
                   display: "flex",
@@ -196,7 +262,6 @@ function App() {
                   {currentSidebarInfo.title}
                 </span>
               </div>
-
               <ul className="objectiveList">
                 {currentSidebarInfo.tasks.map((task, index) => (
                   <li key={index} className="objectiveItem">
@@ -225,14 +290,22 @@ function App() {
             </div>
           </aside>
 
-          {/* Right Panel: Centers your registration form perfectly */}
           <section className="contentArea">
             <Routes>
+              {/* Both routes are freely accessible before login */}
               <Route
-                path="/register"
-                element={<Register setUser={setUser} />}
+                path="/login"
+                element={
+                  <Login
+                    setUser={setUser}
+                    setIsAuthenticated={setIsAuthenticated}
+                  />
+                }
               />
-              <Route path="*" element={<Navigate to="/register" replace />} />
+              <Route path="/register" element={<Register />} />
+
+              {/* Fallback to login if URL is unrecognizable */}
+              <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </section>
         </div>
@@ -241,43 +314,56 @@ function App() {
   }
 
   // ==========================================
-  // STAGE 3: THE MAIN SECURE DASHBOARD SHELL
+  // STAGE 3: THE COMMAND CENTER (Logged In)
   // ==========================================
   return (
     <main className="appWrapper ship-mode">
-      {/* Persistent Space Effects */}
       <Starfield />
       <div className="nebulaLayer" />
       <CursorTrail />
 
-      {/* --- TOP NAVIGATION BAR --- */}
       <header className="topNav">
         <div className="brand">
-          <Hexagon className="brandIcon" size={24} />
+          <img
+            src="/assets/icon.png"
+            alt="Telemetry Icon"
+            className="brandIcon"
+            style={{
+              width: "80px",
+              height: "80px",
+              filter: "invert(1)",
+              opacity: 0.9,
+            }}
+          />
           <span>Telemetry</span>
         </div>
-
         <Navbar />
-
-        {/* Top-Right User Widget */}
         <div className="userWidget" onClick={() => navigate("/profile")}>
           <div className="userStats">
             <span className="userLevel">LEVEL {user.level}</span>
             <span className="userXp">{user.xp.toLocaleString()} XP</span>
           </div>
-          <div className="userAvatar">
-            {user?.username?.charAt(0).toUpperCase() || "P"}
+          <div
+            className="userAvatar"
+            style={{
+              padding: 0,
+              overflow: "hidden",
+              border: "2px solid #334155",
+            }}
+          >
+            <img
+              src={defaultAvatar}
+              alt="Pilot Avatar"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
           </div>
         </div>
       </header>
 
-      {/* --- MAIN DASHBOARD LAYOUT --- */}
       <div className="mainLayout">
-        {/* Left Sidebar */}
         <aside className="leftSidebar">
           <div className="premium-card objectiveCard">
             <h3 className="sidebarTitle">Current Objective</h3>
-
             <div
               style={{
                 display: "flex",
@@ -299,7 +385,6 @@ function App() {
                 {currentSidebarInfo.title}
               </span>
             </div>
-
             <ul className="objectiveList">
               {currentSidebarInfo.tasks.map((task, index) => (
                 <li key={index} className="objectiveItem">
@@ -328,7 +413,6 @@ function App() {
           </div>
         </aside>
 
-        {/* Center Panel Router */}
         <section className="contentArea">
           <Routes>
             <Route
@@ -342,8 +426,16 @@ function App() {
             <Route path="/relax" element={<Relax />} />
             <Route
               path="/profile"
-              element={<Profile user={user} setUser={setUser} />}
+              element={
+                <Profile
+                  user={user}
+                  setUser={setUser}
+                  setIsAuthenticated={setIsAuthenticated}
+                />
+              }
             />
+
+            {/* Secures against invalid internal URLs */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </section>
@@ -351,5 +443,3 @@ function App() {
     </main>
   );
 }
-
-export default App;

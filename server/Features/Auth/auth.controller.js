@@ -33,13 +33,15 @@ export async function Register(req, res) {
       res.cookie("token", token, {
         httpOnly: true,
         secure: false, //for dev mode
-        sameSite: "strict",
+        sameSite: "strict",//for dev mode
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
       res
         .status(201)
         .json({ username: newUser.username, email: newUser.email });
+      
+      console.log("registration done")
     }
   } catch (err) {
     res.status(500).json({ message: "Internal server error" });
@@ -53,7 +55,9 @@ export async function Login(req, res) {
     const ValidatedLogin = await safeParse(LoginSchema, LoginInputs);
 
     if (!ValidatedLogin.success) {
-      return res.status(401).json(ValidatedLogin.issues[0].message);
+      return res
+        .status(401)
+        .json({ message: ValidatedLogin.issues[0].message });
     }
     const { email, password } = ValidatedLogin.output;
     const registeredUser = await User.findOne({
@@ -90,12 +94,47 @@ export async function Login(req, res) {
   }
 }
 
-export async function Logout(req,res) {
+export async function Logout (req, res){
   try {
-    res.clearCookie("token");
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: false, 
+      sameSite: "strict",
+      path: "/", 
+    });
 
-    res.status(200).json({ message: "Successfully Logged Out " });
-  } catch (err) {
-    res.status(401).json({ message: `Logotu Failed ${err} ` });
+    res
+      .status(200)
+      .json({ message: "Telemetry link disconnected successfully." });
+    console.log("cleaned the cookie")
+  } catch (error) {
+    console.error("Logout Error:", error);
+    res.status(500).json({ message: "Error during disconnect sequence." });
+  }
+};
+
+export async function VerifyPilot(req, res) {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId).select("-password");
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "Pilot profile not found in database." });
+    }
+    res.status(200).json({
+      message: "Secure link verified.",
+      user: {
+        username: user.username,
+        xp: user.xp,
+        level: user.level,
+      },
+    });
+  } catch (error) {
+    console.error("Verification Error:", error);
+    res
+      .status(500)
+      .json({ message: "Server error during verification sequence." });
   }
 }

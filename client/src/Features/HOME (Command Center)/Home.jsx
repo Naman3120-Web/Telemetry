@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Clock, Zap, Flame, Activity } from "lucide-react";
 import styles from "./Home.module.css";
-
+import defaultAvatar from "/assets/default-avatar.avif";
 export default function Home({ user, onQuickLaunch }) {
   // Logic for the visual progress bar
   const currentLevelXp = user.xp % 1000;
@@ -40,8 +40,19 @@ export default function Home({ user, onQuickLaunch }) {
           </div>
 
           <div className={styles.userProfile}>
-            <div className={styles.avatar}>
-              {user.username.charAt(0).toUpperCase()}
+            <div
+              style={{
+                width: "64px",
+                height: "64px",
+                borderRadius: "50%",
+                overflow: "hidden",
+              }}
+            >
+              <img
+                src={defaultAvatar}
+                alt="Pilot Avatar"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
             </div>
             <div>
               <p className={styles.greeting}>Welcome back, {user.username}</p>

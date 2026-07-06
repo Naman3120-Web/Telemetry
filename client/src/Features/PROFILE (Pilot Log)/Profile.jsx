@@ -1,5 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../../api/axios";
 import { motion } from "framer-motion";
+import defaultAvatar from "/assets/default-avatar.avif";
 import {
   User,
   Award,
@@ -9,6 +12,7 @@ import {
   Edit2,
 } from "lucide-react";
 import styles from "./Profile.module.css";
+
 
 // Ranking Utility Function
 export function getPilotRank(xp) {
@@ -24,15 +28,45 @@ export function getPilotRank(xp) {
   return { level, title };
 }
 
-export default function Profile({ user, setUser }) {
+export default function Profile({ user, setUser,setIsAuthenticated}) {
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(user.username);
-
-  const handleSaveName = () => {
-    if (newName.trim().length > 0) {
-      setUser((prev) => ({ ...prev, username: newName.trim() }));
+  
+  /**
+   * EJECT PROTOCOL
+   * Triggers the backend logout route to destroy the cookie,
+   * wipes the local React state, and routes the user back to the airlock (login).
+   */
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout");
+      setIsAuthenticated(false);
+      setUser({ username: "Pilot", xp: 0, level: 0 });
+      navigate("/login");
+    } catch (error) {
+      console.error("Failed to disconnect:", error);
+    }
+  };
+  /**
+   * CALLSIGN UPDATE PROTOCOL
+   * Syncs the new username with the MongoDB database before
+   * updating the local React state to ensure data integrity.
+   */
+  const handleSaveName = async () => {
+    const trimmedName = newName.trim();
+    if (trimmedName.length > 0 && trimmedName !== user.username) {
+      try {
+        await api.put("/user/update-username", {
+          username: trimmedName,
+        });
+        setUser((prev) => ({ ...prev, username: trimmedName }));
+      } catch (err) {
+        console.error("Failed to update callsign:", err);
+        setNewName(user.username);
+      }
     } else {
-      setNewName(user.username); // Revert if empty
+      setNewName(user.username);
     }
     setIsEditing(false);
   };
@@ -59,7 +93,6 @@ export default function Profile({ user, setUser }) {
         animate="show"
         variants={{ show: { transition: { staggerChildren: 0.1 } } }}
       >
-        {/* --- LEFT COLUMN: DOSSIER --- */}
         <div className={styles.leftColumn}>
           <motion.div
             variants={fadeUp}
@@ -70,12 +103,36 @@ export default function Profile({ user, setUser }) {
                 <User className={styles.headerIcon} size={22} />
                 <h2 className={styles.pageTitle}>Pilot Profile</h2>
               </div>
-              <span className={styles.loreTag}>Dossier</span>
+              <button onClick={handleLogout} className={styles.logout}>
+                LOGOUT
+              </button>
             </div>
 
             <div className={styles.avatarSection}>
-              <div className={styles.avatarNode}>
-                {user.username.charAt(0).toUpperCase()}
+              <div
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "50%",
+                  overflow: "hidden",
+                  border: "2px solid #334155",
+                  flexShrink: 0,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: "#0f172a",
+                }}
+              >
+                <img
+                  src={defaultAvatar}
+                  alt="Pilot Avatar"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    borderRadius: "50%",
+                  }}
+                />
               </div>
 
               <div className={styles.nameBlock}>
@@ -104,7 +161,7 @@ export default function Profile({ user, setUser }) {
                     </button>
                   </div>
                 )}
-                {/* Dynamic Rank Display */}
+
                 <p className={styles.rankTitle}>
                   {rankInfo.title} — Rank {rankInfo.level}
                 </p>
@@ -135,29 +192,129 @@ export default function Profile({ user, setUser }) {
           <motion.div
             variants={fadeUp}
             className={`premium-card ${styles.badgesCard}`}
+            style={{ overflow: "hidden" }} 
           >
-            <div className={styles.cardHeader}>
-              <div className={styles.titleBlock}>
-                <Award className={styles.headerIcon} size={22} />
-                <h2 className={styles.pageTitle}>Achievements</h2>
-              </div>
-            </div>
-            <div className={styles.badgeGrid}>
-              <div className={`${styles.badge} ${styles.earned}`}>
-                <CheckCircle2 size={24} />
-                <span>First Jump</span>
-              </div>
+             <Award className={styles.headerIcon} size={20} />
+            <h2 className={styles.pageTitle}>Achievements</h2>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: "12px",
+                width: "100%",
+                marginTop: "1rem",
+                paddingBottom: "4px",
+              }}
+            >
+              {/* BADGE 1: First Jump */}
               <div
-                className={`${styles.badge} ${rankInfo.level >= 5 ? styles.earned : styles.locked}`}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "12px 4px", // Reduced side padding slightly
+                  background: "rgba(34, 197, 94, 0.1)",
+                  border: "1px solid var(--success, #22c55e)",
+                  borderRadius: "8px",
+                  textAlign: "center",
+                  minWidth: 0, // 🚨 THE FIX: Allows the flex container to shrink below text size
+                }}
               >
-                <ShieldAlert size={24} />
-                <span>Veteran</span>
+                <CheckCircle2
+                  size={20}
+                  color="var(--success, #22c55e)"
+                  style={{ marginBottom: "8px", flexShrink: 0 }}
+                />
+                <span
+                  style={{
+                    fontSize: "0.65rem", // Slightly smaller to ensure fit
+                    color: "var(--success, #22c55e)",
+                    fontWeight: "bold",
+                    letterSpacing: "0.05em",
+                    whiteSpace: "nowrap", // 🚨 Prevents text from wrapping and breaking height
+                    overflow: "hidden",
+                    textOverflow: "ellipsis", // Adds "..." if it gets impossibly squished on tiny phones
+                    width: "100%",
+                  }}
+                >
+                  FIRST JUMP
+                </span>
               </div>
+
+              {/* BADGE 2: Veteran (Locked) */}
               <div
-                className={`${styles.badge} ${rankInfo.level >= 35 ? styles.earned : styles.locked}`}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "12px 4px",
+                  background: "rgba(0,0,0,0.2)",
+                  border: "1px dashed #334155",
+                  borderRadius: "8px",
+                  textAlign: "center",
+                  opacity: 0.5,
+                  minWidth: 0, // 🚨 THE FIX
+                }}
               >
-                <Terminal size={24} />
-                <span>Fleet Cmdr</span>
+                <ShieldAlert
+                  size={20}
+                  color="#64748b"
+                  style={{ marginBottom: "8px", flexShrink: 0 }}
+                />
+                <span
+                  style={{
+                    fontSize: "0.65rem",
+                    color: "#64748b",
+                    fontWeight: "bold",
+                    letterSpacing: "0.05em",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    width: "100%",
+                  }}
+                >
+                  VETERAN
+                </span>
+              </div>
+
+              {/* BADGE 3: Fleet Cmdr (Locked) */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "12px 4px",
+                  background: "rgba(0,0,0,0.2)",
+                  border: "1px dashed #334155",
+                  borderRadius: "8px",
+                  textAlign: "center",
+                  opacity: 0.5,
+                  minWidth: 0, // 🚨 THE FIX
+                }}
+              >
+                <Terminal
+                  size={20}
+                  color="#64748b"
+                  style={{ marginBottom: "8px", flexShrink: 0 }}
+                />
+                <span
+                  style={{
+                    fontSize: "0.65rem",
+                    color: "#64748b",
+                    fontWeight: "bold",
+                    letterSpacing: "0.05em",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    width: "100%",
+                  }}
+                >
+                  FLEET CMDR
+                </span>
               </div>
             </div>
           </motion.div>

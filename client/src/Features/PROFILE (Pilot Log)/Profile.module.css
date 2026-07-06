@@ -96,6 +96,26 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
   white-space: nowrap;
 }
+.logout {
+  font-family: var(--font-data);
+  font-size: 0.75rem;
+ color: #f8fafc;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+   background-color: #dc2626;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  white-space: nowrap;
+}
+
+.logout:hover{
+  
+  border-color: var(--accent-red);
+  box-shadow: 0 4px 20px var(--accent-red-dim);
+  background: rgba(255, 59, 59, 0.05);
+  transform: scale(1.2)
+}
 
 .headerIcon { color: var(--relax-cyan); }
 .headerIconAlt { color: var(--xp-gold); }
