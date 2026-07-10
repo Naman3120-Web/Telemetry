@@ -1,9 +1,9 @@
+# 🧑‍🚀 Telemetry
+
 <p align="center">
-  <img src="" alt="Banner" />
+  <img src="https://raw.githubusercontent.com/Naman3120-Web/Telemetry/refs/heads/main/telemetry.jpg" alt="Banner" />
 </p>
 
-
-# 🧑‍🚀 Telemetry
 
 **Telemetry** is a gamified productivity application engineered to maintain deep focus through immersive mechanics. Built around a strict progression system, it rewards sustained attention, discourages digital distractions, and enables synchronized co-working.
 
