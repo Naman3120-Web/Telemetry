@@ -32,8 +32,8 @@ export async function Register(req, res) {
 
       res.cookie("token", token, {
         httpOnly: true,
-        secure: false, //for dev mode
-        sameSite: "strict",//for dev mode
+        secure: true, 
+        sameSite: "none",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
@@ -81,8 +81,8 @@ export async function Login(req, res) {
 
     res.cookie("token", token, {
       httpOnly: true,
-      sameSite: "strict",
-      secure: false, //for dev mode
+      sameSite: "none",
+      secure: true, 
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -98,8 +98,8 @@ export async function Logout (req, res){
   try {
     res.clearCookie("token", {
       httpOnly: true,
-      secure: false, 
-      sameSite: "strict",
+      secure: true, 
+      sameSite: "none",
       path: "/", 
     });
 
