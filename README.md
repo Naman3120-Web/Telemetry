@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="" alt="Banner" />
+</p>
+
+
 # 🧑‍🚀 Telemetry
 
 **Telemetry** is a gamified productivity application engineered to maintain deep focus through immersive mechanics. Built around a strict progression system, it rewards sustained attention, discourages digital distractions, and enables synchronized co-working.
