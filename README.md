@@ -5,7 +5,7 @@
 </p>
 
 
-**Telemetry** is a gamified productivity application engineered to maintain deep focus through immersive mechanics. Built around a strict progression system, it rewards sustained attention, discourages digital distractions, and enables synchronized co-working.
+## **Telemetry** is a gamified productivity application engineered to maintain deep focus through immersive mechanics. Built around a strict progression system, it rewards sustained attention, discourages digital distractions, and enables synchronized co-working.
 
 ---
 
