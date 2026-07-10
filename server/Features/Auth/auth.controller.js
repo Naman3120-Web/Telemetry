@@ -4,13 +4,17 @@ import { User } from "../HOME/users.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+// Determines if the app is running in production (Render) or local development
+const isProduction = process.env.NODE_ENV === "production";
+
 export async function Register(req, res) {
   try {
     const Inputs = req.body;
     const ValidatedInfo = await safeParse(RegisterationSchema, Inputs);
 
     if (!ValidatedInfo.success) {
-      return res.status(400).json(ValidatedInfo.issues[0].message);
+      // 🚨 FIXED: Wrapped the Valibot message in a standard { message } object
+      return res.status(400).json({ message: ValidatedInfo.issues[0].message });
     } else {
       console.log(ValidatedInfo.output); //to check for myself
       const { username, password, email } = ValidatedInfo.output;
@@ -30,18 +34,19 @@ export async function Register(req, res) {
         expiresIn: "7d",
       });
 
+      // 🚨 FIXED: Dynamic cookie settings
       res.cookie("token", token, {
         httpOnly: true,
-        secure: true, 
-        sameSite: "none",
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
       res
         .status(201)
         .json({ username: newUser.username, email: newUser.email });
-      
-      console.log("registration done")
+
+      console.log("registration done");
     }
   } catch (err) {
     res.status(500).json({ message: "Internal server error" });
@@ -79,10 +84,11 @@ export async function Login(req, res) {
       expiresIn: "7d",
     });
 
+    // 🚨 FIXED: Dynamic cookie settings
     res.cookie("token", token, {
       httpOnly: true,
-      sameSite: "none",
-      secure: true, 
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -94,24 +100,25 @@ export async function Login(req, res) {
   }
 }
 
-export async function Logout (req, res){
+export async function Logout(req, res) {
   try {
+    // 🚨 FIXED: Dynamic cookie settings
     res.clearCookie("token", {
       httpOnly: true,
-      secure: true, 
-      sameSite: "none",
-      path: "/", 
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      path: "/",
     });
 
     res
       .status(200)
       .json({ message: "Telemetry link disconnected successfully." });
-    console.log("cleaned the cookie")
+    console.log("cleaned the cookie");
   } catch (error) {
     console.error("Logout Error:", error);
     res.status(500).json({ message: "Error during disconnect sequence." });
   }
-};
+}
 
 export async function VerifyPilot(req, res) {
   try {

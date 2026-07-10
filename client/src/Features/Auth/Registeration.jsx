@@ -55,11 +55,14 @@ export default function Register() {
         setIsSuccess(true);
       }
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message || "Registration failed. Try again.";
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
+      
+      if (err.response && err.response.data && err.response.data.message) {
+       
+        setError(err.response.data.message);
+      } else {
+
+        setError("Network error. Please try again.");
+      }
     }
   };
 
